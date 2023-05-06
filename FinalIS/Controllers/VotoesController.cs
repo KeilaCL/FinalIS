@@ -29,6 +29,41 @@ namespace FinalIS.Controllers
         {
             
         }
+        
+        [HttpGet]
+        [Route("GetVotosPorCandidato")]
+        public async Task<ActionResult<Dictionary<int, int>>> GetVotosPorCandidato()
+        {
+            Dictionary<int, int> votosPorCandidato = new Dictionary<int, int>();
+
+            try
+            {
+                FinalisContext _votoContext = new FinalisContext();
+                var votos = await _votoContext.Votos.Where(v => v.EsNulo == 0).ToListAsync();
+
+                foreach (var voto in votos)
+                {
+                    if (voto.IdCandidato != null)
+                    {
+                        if (votosPorCandidato.ContainsKey((int)voto.IdCandidato))
+                        {
+                            votosPorCandidato[(int)voto.IdCandidato]++;
+                        }
+                        else
+                        {
+                            votosPorCandidato.Add((int)voto.IdCandidato, 1);
+                        }
+                    }
+                }
+
+                return votosPorCandidato;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest();
+            }
+        }
 
         [Route("Login")]
         [HttpPost]
